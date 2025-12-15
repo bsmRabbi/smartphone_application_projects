@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_4/widgets/input_field.dart';
 import 'homepage.dart';
 
 String? registeredUsername;
+String? registeredEmail;
 String? registeredPassword;
 
 // Login Page
@@ -61,21 +63,34 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
+            InputField(
               controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+              keyboardType: TextInputType.text,
+              hint: 'Enter your username',
+              label: 'Username',
+              icon: Icons.person,
+              errorText: null,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Username is required";
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 10),
-            TextField(
+            InputField(
               controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
+              keyboardType: TextInputType.visiblePassword,
+              hint: 'Enter your password',
+              label: 'Password',
+              icon: Icons.lock,
+              errorText: null,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Password is required";
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 20),
             ElevatedButton(onPressed: _handleLogin, child: const Text('Login')),
@@ -110,6 +125,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  String? email;
 
   String? errorText;
 
@@ -123,59 +140,77 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextFormField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: const Icon(Icons.person),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 12),
+              InputField(
+                controller: nameController,
+                keyboardType: TextInputType.name,
+                hint: 'Enter your name',
+                label: 'Name',
+                icon: Icons.person,
                 errorText: errorText,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: passController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (nameController.text.isEmpty ||
-                      emailController.text.isEmpty ||
-                      passController.text.isEmpty) {
-                    errorText = 'Please fill all fields';
-                  } else {
-                    errorText = null;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Registered successfully')),
-                    );
-                    registeredUsername = nameController.text;
-                    registeredPassword = passController.text;
-                    Navigator.pop(context);
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Name is required";
                   }
-                });
-              },
-              child: const Text('Register'),
-            ),
-          ],
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              InputField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                hint: 'Enter your email',
+                label: 'Email',
+                icon: Icons.email,
+                errorText: errorText,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Email is required";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              InputField(
+                controller: passController,
+                keyboardType: TextInputType.visiblePassword,
+                hint: 'Enter your password',
+                label: 'Password',
+                icon: Icons.lock,
+                errorText: errorText,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Password is required";
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    if (_formKey.currentState!.validate()) {
+                      registeredUsername = nameController.text.trim();
+                      registeredEmail = emailController.text.trim();
+                      registeredPassword = passController.text;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Registered successfully'),
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
+                  });
+                },
+                child: const Text('Register'),
+              ),
+            ],
+          ),
         ),
       ),
     );
